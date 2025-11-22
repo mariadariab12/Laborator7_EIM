@@ -18,6 +18,7 @@ public class ConnectThread extends Thread {
     private final BluetoothAdapter bluetoothAdapter;
     private final MainActivity mainActivity;
 
+    //Responsabil pentru conectarea la un socket Bluetooth
     public ConnectThread(MainActivity activity, BluetoothAdapter adapter, BluetoothDevice device, UUID uuid) {
         this.mainActivity = activity;
         this.bluetoothAdapter = adapter;
@@ -42,9 +43,9 @@ public class ConnectThread extends Thread {
             Log.d("ConnectThread", "Socket is null, cannot connect.");
             return;
         }
-        bluetoothAdapter.cancelDiscovery();
+        bluetoothAdapter.cancelDiscovery(); // Oprește căutarea altor dispozitive
         try {
-            socket.connect();
+            socket.connect(); // Se conectează la dispozitiv
             mainActivity.manageConnectedSocket(socket);
         } catch (IOException connectException) {
             mainActivity.runOnUiThread(() -> Toast.makeText(mainActivity, "Connection failed.", Toast.LENGTH_SHORT).show());
@@ -66,4 +67,5 @@ public class ConnectThread extends Thread {
             Log.d("Connect->Cancel", e.toString());
         }
     }
+
 }

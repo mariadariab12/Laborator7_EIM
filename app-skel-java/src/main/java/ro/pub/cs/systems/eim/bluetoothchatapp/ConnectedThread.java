@@ -18,6 +18,8 @@ public class ConnectedThread extends Thread {
     private final OutputStream outputStream;
     private final MainActivity mainActivity;
 
+    //Threadul pe care vor comunica cele 2 dispozitive Bluetooth
+    // BluetoothSocket este canalul de comuniatie stabilit cu un alt device bluetooth.
     public ConnectedThread(MainActivity activity, BluetoothSocket socket) {
         this.mainActivity = activity;
         this.socket = socket;
@@ -47,14 +49,18 @@ public class ConnectedThread extends Thread {
         if (ActivityCompat.checkSelfPermission(mainActivity, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
+
+        // obtine numele device-ului cu care comunicam
         String remoteDeviceName = socket.getRemoteDevice().getName();
 
         mainActivity.runOnUiThread(() -> Toast.makeText(mainActivity, "Connected to " + remoteDeviceName, Toast.LENGTH_SHORT).show());
 
         while (true) {
             try {
-                bytes = inputStream.read(buffer);
+                bytes = inputStream.read(buffer);  // Citește mesajul
                 String incomingMessage = new String(buffer, 0, bytes);
+
+                // Adaugam mesajul in threadul de UI al aplicatiei
                 mainActivity.runOnUiThread(() -> mainActivity.addChatMessage(remoteDeviceName + ": " + incomingMessage));
             } catch (IOException e) {
                 mainActivity.runOnUiThread(() -> Toast.makeText(mainActivity, "Connection lost.", Toast.LENGTH_SHORT).show());
@@ -62,7 +68,6 @@ public class ConnectedThread extends Thread {
             }
         }
     }
-
     public void write(byte[] bytes) {
         try {
             outputStream.write(bytes);
@@ -83,4 +88,5 @@ public class ConnectedThread extends Thread {
             Log.d("Connected->Cancel", e.toString());
         }
     }
+
 }
